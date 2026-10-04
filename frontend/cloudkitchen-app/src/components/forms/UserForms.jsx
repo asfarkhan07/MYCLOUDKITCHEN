@@ -49,6 +49,7 @@ function AuthLayout({
 }
 
 export function RegisterForm({ theme, onToggleTheme }) {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const authError = useSelector((state) => state.auth?.error);
   const [form, setForm] = useState({
@@ -100,8 +101,9 @@ export function RegisterForm({ theme, onToggleTheme }) {
       dispatch(clearError());
       setAlert({
         type: "success",
-        message: "Registration successful. Log in to continue.",
+        message: "Registration successful. Redirecting to login...",
       });
+      setTimeout(() => navigate("/Login"), 2000);
     } catch (err) {
       const message =
         typeof err === "string"
