@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import asyncHandler from "../../utils/asyncHandler.utils.js";
 import ApiError from "../../utils/ApiError.utils.js";
-import getRazorpayClient from "../../config/razorpay.config.js";
+import getRazorpayClient from "../../config/razorPay.config.js";
 import Order from "../../models/order.model.js";
 
 const verifyRazorpayPayment = asyncHandler(async (req, res) => {

@@ -1,7 +1,7 @@
 import { randomUUID, createHmac } from "node:crypto";
 import asyncHandler from "../../utils/asyncHandler.utils.js";
 import ApiError from "../../utils/ApiError.utils.js";
-import getRazorpayClient from "../../config/razorpay.config.js";
+import getRazorpayClient from "../../config/razorPay.config.js";
 import buildOrderData from "../../services/order.service.js";
 
 const createRazorpayOrder = asyncHandler(async (req, res) => {
