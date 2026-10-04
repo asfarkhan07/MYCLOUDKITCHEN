@@ -2,6 +2,7 @@ import User from "../../models/user.model.js";
 import ApiError from "../../utils/ApiError.utils.js";
 import asyncHandler from "../../utils/asyncHandler.utils.js";
 import bcrypt from "bcryptjs";
+import sendEmail from "../../utils/sendEmail.utils.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   const username = req.body.username?.trim();
@@ -29,6 +30,15 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   await user.save();
+  try {
+    await sendEmail(
+      email,
+      "Welcome to My Cloud Kitchen",
+      "<p>You have successfully registered for the My Cloud Kitchen App. Use it to manage your account and explore our services. Thank you!</p>"
+    );
+  } catch (emailError) {
+    console.error("Registration email notification failed:", emailError.message);
+  }
   res.status(201).json({ message: "User registered successfully", user });
 });
 
