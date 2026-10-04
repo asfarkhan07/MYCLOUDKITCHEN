@@ -38,17 +38,7 @@ const login = asyncHandler(async (req, res) => {
     maxAge: 24 * 60 * 60 * 1000,
   });
 
-  try {
-    await sendEmail(
-      email,
-      "You are Logged In,Welcome",
-      "<p>You have successfully LOGGED IN to the My Cloud Kitchen App. Use it to manage your account and explore our services.Thankyou.</p>",
-    );
-  } catch (emailError) {
-    console.error("Login email notification failed:", emailError.message);
-  }
-
-  return res.status(200).json({
+  res.status(200).json({
     message: "Login Successful",
     token,
     user: {
@@ -57,6 +47,14 @@ const login = asyncHandler(async (req, res) => {
       email: user.email,
       role: user.role,
     },
+  });
+
+  sendEmail(
+    email,
+    "You are Logged In,Welcome",
+    "<p>You have successfully LOGGED IN to the My Cloud Kitchen App. Use it to manage your account and explore our services.Thankyou.</p>",
+  ).catch((emailError) => {
+    console.error("Login email notification failed:", emailError.message);
   });
 });
 
