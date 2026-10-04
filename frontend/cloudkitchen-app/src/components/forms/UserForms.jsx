@@ -49,7 +49,6 @@ function AuthLayout({
 }
 
 export function RegisterForm({ theme, onToggleTheme }) {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const authError = useSelector((state) => state.auth?.error);
   const [form, setForm] = useState({
@@ -101,11 +100,8 @@ export function RegisterForm({ theme, onToggleTheme }) {
       dispatch(clearError());
       setAlert({
         type: "success",
-        message: "Registration successful! Redirecting you to your dashboard...",
+        message: "Registration successful. Log in to continue.",
       });
-
-      const role = form.role || "user";
-      setTimeout(() => navigate(role === "admin" ? "/admin" : "/dashboard"), 1500);
     } catch (err) {
       const message =
         typeof err === "string"
@@ -230,6 +226,11 @@ export function RegisterForm({ theme, onToggleTheme }) {
         <button type="submit" className="btn btn-primary auth-submit">
           Create Account
         </button>
+        {alert.type === "success" && (
+          <Link to="/Login" className="btn btn-ghost auth-submit">
+            Continue to login
+          </Link>
+        )}
       </form>
     </AuthLayout>
   );
