@@ -30,16 +30,15 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   await user.save();
-  try {
-    await sendEmail(
-      email,
-      "Welcome to My Cloud Kitchen",
-      "<p>You have successfully registered for the My Cloud Kitchen App. Use it to manage your account and explore our services. Thank you!</p>"
-    );
-  } catch (emailError) {
-    console.error("Registration email notification failed:", emailError.message);
-  }
   res.status(201).json({ message: "User registered successfully", user });
+
+  sendEmail(
+    email,
+    "Welcome to My Cloud Kitchen",
+    "<p>You have successfully registered for the My Cloud Kitchen App. Use it to manage your account and explore our services. Thank you!</p>",
+  ).catch((emailError) => {
+    console.error("Registration email notification failed:", emailError.message);
+  });
 });
 
 export default registerUser;
