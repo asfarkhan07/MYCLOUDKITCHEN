@@ -4,8 +4,25 @@ import adminRoute from "../routes/admin.route.js";
 import browseRoute from "../routes/browse.route.js";
 import orderRoute from "../routes/order.route.js";
 import errorHandler from "../middleware/error.middle.js";
+import cors from "cors";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowedOrigins = (
+        process.env.FRONTEND_URL || "http://localhost:5173"
+      )
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+
+      callback(null, !origin || allowedOrigins.includes(origin));
+    },
+    credentials: true,
+  }),
+);
 
 // Body parsers
 app.use(express.json());
