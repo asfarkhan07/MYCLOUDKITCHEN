@@ -12,7 +12,8 @@ app.use(
   cors({
     origin: (origin, callback) => {
       const allowedOrigins = (
-        process.env.FRONTEND_URL || "http://localhost:5173"
+        process.env.FRONTEND_URL ||
+        "http://localhost:5173,https://my-cloud-kitchen.netlify.app"
       )
         .split(",")
         .map((value) => value.trim())
