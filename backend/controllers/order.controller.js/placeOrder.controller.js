@@ -13,7 +13,7 @@ const placeOrder = asyncHandler(async (req, res) => {
   await order.save();
   try{
     await sendEmail(
-      email,
+      req.user.email,
       "Order Placed Successfully at MyCloudKitchen",
       `<p>Your order with ID ${order._id} has been placed successfully. Thank you for choosing My Cloud Kitchen!</p>`
     );
