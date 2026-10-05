@@ -22,9 +22,15 @@ const buildOrderData = async (customerId, body) => {
 
   const orderItems = [];
   let subtotal = 0;
+  const menuItems = await Menu.find({
+    _id: { $in: items.map((item) => item.menuItem) },
+  });
+  const menuItemsById = new Map(
+    menuItems.map((menuItem) => [String(menuItem._id), menuItem]),
+  );
 
   for (const item of items) {
-    const menuItem = await Menu.findById(item.menuItem);
+    const menuItem = menuItemsById.get(String(item.menuItem));
     if (!menuItem) throw new ApiError(404, `menuItem ${item.menuItem} not found`);
     if (menuItem.kitchen.toString() !== String(kitchenId)) {
       throw new ApiError(400, "all items must belong to the same kitchen");

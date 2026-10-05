@@ -10,17 +10,17 @@ const login = asyncHandler(async (req, res) => {
   const password = req.body.password;
 
   if (!email || !password) {
-    throw new ApiError("404", "Enter all the fields");
+    throw new ApiError(400, "Enter all the fields");
   }
 
   const user = await User.findOne({ email });
   if (!user) {
-    throw new ApiError("403", "User doesnt exist,Please register first");
+    throw new ApiError(404, "User doesn't exist. Please register first.");
   }
 
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) {
-    throw new ApiError("403", "Invalid password");
+    throw new ApiError(401, "Invalid password");
   }
 
   const token = jwt.sign(

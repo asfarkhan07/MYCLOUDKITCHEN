@@ -3,6 +3,7 @@ import asyncHandler from "../../utils/asyncHandler.utils.js";
 import ApiError from "../../utils/ApiError.utils.js";
 import getRazorpayClient from "../../config/razorPay.config.js";
 import Order from "../../models/order.model.js";
+import sendEmail from "../../utils/sendEmail.utils.js";
 
 const verifyRazorpayPayment = asyncHandler(async (req, res) => {
   const {
@@ -108,6 +109,14 @@ const verifyRazorpayPayment = asyncHandler(async (req, res) => {
     order = await Order.findOne({ razorpayOrderId, customer: req.user.id });
     if (!order) throw error;
   }
+
+  sendEmail(
+    req.user.email,
+    "Order Placed Successfully at MyCloudKitchen",
+    `<p>Your order with ID ${order._id} has been placed successfully. Thank you for choosing My Cloud Kitchen!</p>`,
+  ).catch((emailError) => {
+    console.error("Order placement email notification failed:", emailError.message);
+  });
 
   res.status(200).json({ message: "Payment verified", order });
 });
