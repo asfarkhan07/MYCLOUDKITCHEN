@@ -16,10 +16,8 @@ function HomePage({ theme, onToggleTheme }) {
   const {
     kitchens: kitchenList,
     loading: kitchensLoading,
-    error: kitchensError,
     menus: menuItems,
     menusLoading,
-    menusError,
   } = useSelector((state) => state.browse);
 
   useEffect(() => {
@@ -140,8 +138,6 @@ function HomePage({ theme, onToggleTheme }) {
           <div className="kitchen-grid">
             {kitchensLoading ? (
               <p>Loading kitchens...</p>
-            ) : kitchensError ? (
-              <p role="alert">{kitchensError}</p>
             ) : kitchenList.length > 0 ? (
               kitchenList.map((kitchen) => (
                 <KitchenCard key={kitchen._id} kitchen={kitchen} />
@@ -163,8 +159,6 @@ function HomePage({ theme, onToggleTheme }) {
           <div className="menu-grid">
             {menusLoading ? (
               <p>Loading menu...</p>
-            ) : menusError ? (
-              <p role="alert">{menusError}</p>
             ) : menuItems.length > 0 ? (
               menuItems.map((dish) => (
                 <article className="menu-card" key={dish._id}>

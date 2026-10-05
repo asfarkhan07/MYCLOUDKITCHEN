@@ -7,11 +7,17 @@ import OrderListPanel from "./OrderListPanel";
 
 export default function AdminOrdersPage({ theme, onToggleTheme }) {
   const dispatch = useDispatch();
-  const { orders = [], loading, error } = useSelector((state) => state.orders);
+  const adminId = useSelector((state) => state.auth.user?.id || state.auth.user?._id);
+  const orders = useSelector(
+    (state) => state.orders.adminOrdersByAdminId[adminId] || [],
+  );
+  const loading = useSelector(
+    (state) => state.orders.adminOrdersLoadingByAdminId[adminId] || false,
+  );
 
   useEffect(() => {
-    dispatch(getMyAdminOrders());
-  }, [dispatch]);
+    if (adminId) dispatch(getMyAdminOrders(adminId));
+  }, [dispatch, adminId]);
 
   return (
     <div className="page-shell dashboard-page">
@@ -52,7 +58,7 @@ export default function AdminOrdersPage({ theme, onToggleTheme }) {
             </div>
           </section>
 
-          <OrderListPanel orders={orders} loading={loading} error={error} />
+          <OrderListPanel orders={orders} loading={loading} />
         </main>
       </div>
     </div>

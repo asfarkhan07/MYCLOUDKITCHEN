@@ -12,14 +12,21 @@ const registerUser = asyncHandler(async (req, res) => {
   const allowedRoles = ["user", "admin", "moderator"];
 
   if (!username || !email || !password)
-    throw new ApiError("400", "all fields are required!");
+    throw new ApiError(400, "all fields are required!");
 
   if (!allowedRoles.includes(role)) {
-    throw new ApiError("400", "invalid role provided");
+    throw new ApiError(400, "invalid role provided");
   }
 
-  const existingUser = await User.findOne({ email });
-  if (existingUser) throw new ApiError("409", "user already exists");
+  const existingUser = await User.findOne({
+    $or: [{ email }, { username }],
+  });
+  if (existingUser?.email === email) {
+    throw new ApiError(409, "user already exists");
+  }
+  if (existingUser) {
+    throw new ApiError(409, "username already exists");
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = new User({
@@ -29,7 +36,20 @@ const registerUser = asyncHandler(async (req, res) => {
     role,
   });
 
-  await user.save();
+  try {
+    await user.save();
+  } catch (error) {
+    if (error.code === 11000) {
+      const duplicateField = Object.keys(error.keyPattern || {})[0];
+      throw new ApiError(
+        409,
+        duplicateField === "username"
+          ? "username already exists"
+          : "user already exists",
+      );
+    }
+    throw error;
+  }
   res.status(201).json({ message: "User registered successfully", user });
 
   sendEmail(

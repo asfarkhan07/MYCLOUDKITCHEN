@@ -13,7 +13,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   if (password) updatedData.password = await bcrypt.hash(password, 10);
 
   if (Object.keys(updatedData).length === 0) {
-    throw new ApiError("400", "No field entered to Update");
+    throw new ApiError(400, "No field entered to Update");
   }
   const updateUser = await User.findByIdAndUpdate(userId, updatedData, {
     new: true,
@@ -21,7 +21,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   }).select("-password");
 
   if (!updateUser) {
-    throw new ApiError("404", "User not found!");
+    throw new ApiError(404, "User not found!");
   }
   res.status(200).json({
     message: "User updated successfully",

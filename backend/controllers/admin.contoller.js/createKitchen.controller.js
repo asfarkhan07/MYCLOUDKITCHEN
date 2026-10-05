@@ -21,7 +21,7 @@ const createKitchen = asyncHandler(async (req, res) => {
 
   if (!name || !city || !state || !country || !contactNumber) {
     throw new ApiError(
-      "400",
+      400,
       "Kitchen name, city, state, country and contact number are required",
     );
   }

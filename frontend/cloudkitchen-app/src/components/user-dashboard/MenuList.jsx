@@ -3,7 +3,6 @@ export default function MenuList({
   menuItems,
   kitchens,
   loading,
-  error,
   onAddToCart,
 }) {
   return (
@@ -18,8 +17,6 @@ export default function MenuList({
       <div className="menu-list-grid">
         {loading ? (
           <p>Loading menu...</p>
-        ) : error ? (
-          <p role="alert">{error}</p>
         ) : menuItems.length > 0 ? (
           menuItems.map((item) => {
             const itemKitchenId = String(

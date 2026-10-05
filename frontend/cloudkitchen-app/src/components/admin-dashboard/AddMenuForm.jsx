@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getMyKitchens } from "../../redux/slices/kitchenSlice.js";
 import { createMenu } from "../../redux/slices/menuSlice.js";
+import { showErrorAlert, showSuccessAlert } from "../../utils/sweetAlert.js";
 
 const initialForm = {
   name: "",
@@ -18,15 +19,13 @@ const categories = ["breakfast", "lunch", "dinner", "snacks", "beverages", "dess
 
 export default function AddMenuForm() {
   const dispatch = useDispatch();
-  const { kitchens = [], loading: kitchensLoading, error: kitchensError } = useSelector(
+  const { kitchens = [], loading: kitchensLoading } = useSelector(
     (state) => state.kitchen,
   );
   const [selectedKitchenId, setSelectedKitchenId] = useState("");
   const [form, setForm] = useState(initialForm);
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const requestedKitchens = useRef(false);
 
   useEffect(() => {
@@ -49,11 +48,9 @@ export default function AddMenuForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formElement = event.currentTarget;
-    setSubmitError("");
-    setSuccessMessage("");
 
     if (!activeKitchenId) {
-      setSubmitError("Select a kitchen before adding a menu item.");
+      void showErrorAlert("Select a kitchen before adding a menu item.");
       return;
     }
 
@@ -72,12 +69,12 @@ export default function AddMenuForm() {
       await dispatch(
         createMenu({ kitchenId: activeKitchenId, menuData }),
       ).unwrap();
-      setSuccessMessage("Menu item added successfully.");
+      void showSuccessAlert("Menu item added successfully.");
       setForm(initialForm);
       setImage(null);
       formElement.reset();
     } catch (error) {
-      setSubmitError(error || "Could not add menu item.");
+      console.error("Menu item creation failed:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -90,9 +87,7 @@ export default function AddMenuForm() {
   if (!kitchens.length) {
     return (
       <div className="add-menu-empty">
-        <p className="admin-kitchens-message" role={kitchensError ? "alert" : "status"}>
-          {kitchensError || "Create a kitchen before adding menu items."}
-        </p>
+        <p className="admin-kitchens-message">Create a kitchen before adding menu items.</p>
         <Link className="btn btn-primary" to="/kitchen">Create a kitchen</Link>
       </div>
     );
@@ -205,9 +200,6 @@ export default function AddMenuForm() {
           <span>Available</span>
         </label>
       </div>
-
-      {submitError && <p className="form-feedback form-feedback--error" role="alert">{submitError}</p>}
-      {successMessage && <p className="form-feedback form-feedback--success" role="status">{successMessage}</p>}
 
       <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Adding menu item..." : "Add menu item"}

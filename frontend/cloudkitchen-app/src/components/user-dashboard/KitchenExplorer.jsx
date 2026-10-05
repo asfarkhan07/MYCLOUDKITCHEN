@@ -1,7 +1,6 @@
 export default function KitchenExplorer({
   kitchens,
   loading,
-  error,
   selectedKitchenId,
   onSelectKitchen,
 }) {
@@ -17,8 +16,6 @@ export default function KitchenExplorer({
       <div className="kitchen-card-stack">
         {loading ? (
           <p>Loading kitchens...</p>
-        ) : error ? (
-          <p role="alert">{error}</p>
         ) : kitchens.length > 0 ? (
           kitchens.map((kitchen) => {
             const kitchenId = String(kitchen._id || kitchen.id);

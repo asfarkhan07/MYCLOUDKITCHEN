@@ -6,7 +6,7 @@ import UserDashboardNavbar from "./UserDashboardNavbar";
 
 export default function OrdersPage({ theme, onToggleTheme }) {
   const dispatch = useDispatch();
-  const { orders, loading, error } = useSelector((state) => state.orders);
+  const { orders, loading } = useSelector((state) => state.orders);
 
   useEffect(() => {
     dispatch(getMyUsersOrders());
@@ -61,8 +61,6 @@ export default function OrdersPage({ theme, onToggleTheme }) {
             </div>
             {loading ? (
               <p>Loading orders...</p>
-            ) : error ? (
-              <p className="form-feedback--error" role="alert">{error}</p>
             ) : orders.length ? (
               <div className="order-history__list">
                 {orders.map((order) => (

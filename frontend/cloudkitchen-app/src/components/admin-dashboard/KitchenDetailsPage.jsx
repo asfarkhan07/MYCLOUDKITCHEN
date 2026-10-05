@@ -38,7 +38,7 @@ const formatValue = (value) => {
 export default function KitchenDetailsPage({ theme, onToggleTheme }) {
   const { kitchenId } = useParams();
   const dispatch = useDispatch();
-  const { kitchen, loading, error } = useSelector((state) => state.kitchen);
+  const { kitchen, loading } = useSelector((state) => state.kitchen);
 
   useEffect(() => {
     if (kitchenId) dispatch(getKitchen(kitchenId));
@@ -81,12 +81,8 @@ export default function KitchenDetailsPage({ theme, onToggleTheme }) {
           </article>
         ) : loading ? (
           <p className="kitchen-details-state" role="status">Loading kitchen details...</p>
-        ) : error ? (
-          <p className="kitchen-details-state" role="alert">{error}</p>
         ) : (
-          <p className="kitchen-details-state" role="status">
-            Kitchen details are not in Redux yet. Add the kitchen fetch for this ID here.
-          </p>
+          null
         )}
       </main>
     </div>

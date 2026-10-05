@@ -15,9 +15,7 @@ export default function UserDashboardPage({ theme, onToggleTheme }) {
     kitchens,
     menus,
     loading: kitchensLoading,
-    error: kitchensError,
     menusLoading,
-    menusError,
   } = useSelector((state) => state.browse);
   const [selectedKitchenId, setSelectedKitchenId] = useState("");
   const cartItems = useSelector(selectCartItems);
@@ -89,7 +87,6 @@ export default function UserDashboardPage({ theme, onToggleTheme }) {
             <KitchenExplorer
               kitchens={kitchens}
               loading={kitchensLoading}
-              error={kitchensError}
               selectedKitchenId={activeKitchenId}
               onSelectKitchen={setSelectedKitchenId}
             />
@@ -101,7 +98,6 @@ export default function UserDashboardPage({ theme, onToggleTheme }) {
             menuItems={menus}
             kitchens={kitchens}
             loading={menusLoading}
-            error={menusError}
             onAddToCart={handleAddToCart}
           />
         </main>

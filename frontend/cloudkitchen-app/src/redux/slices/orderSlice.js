@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../api/auth.js";
+import { logout } from "./authSlice.js";
 
 export const getMyUsersOrders = createAsyncThunk(
   "orders/getMyOrders",
@@ -17,10 +18,10 @@ export const getMyUsersOrders = createAsyncThunk(
 
 export const getMyAdminOrders = createAsyncThunk(
   "orders/getMyAdminOrders",
-  async (_, { rejectWithValue }) => {
+  async (adminId, { rejectWithValue }) => {
     try {
       const { data } = await api.get("/admin/orders");
-      return data.orders || [];
+      return { adminId, orders: data.orders || [] };
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Unable to fetch admin orders.",
@@ -86,6 +87,9 @@ export const verifyRazorpayPayment = createAsyncThunk(
 
 const initialState = {
   orders: [],
+  adminOrdersByAdminId: {},
+  adminOrdersLoadingByAdminId: {},
+  adminOrdersErrorByAdminId: {},
   loading: false,
   error: null,
 };
@@ -100,6 +104,7 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(logout, () => initialState)
       .addCase(getMyUsersOrders.pending, (state) => {
         state.orders = [];
         state.loading = true;
@@ -126,18 +131,21 @@ const orderSlice = createSlice({
           state.orders[existingIndex] = action.payload;
         }
       })
-      .addCase(getMyAdminOrders.pending, (state) => {
-        state.orders = [];
-        state.loading = true;
-        state.error = null;
+      .addCase(getMyAdminOrders.pending, (state, action) => {
+        const adminId = action.meta.arg;
+        state.adminOrdersLoadingByAdminId[adminId] = true;
+        state.adminOrdersErrorByAdminId[adminId] = null;
       })
       .addCase(getMyAdminOrders.fulfilled, (state, action) => {
-        state.orders = action.payload;
-        state.loading = false;
+        const { adminId, orders } = action.payload;
+        state.adminOrdersByAdminId[adminId] = orders;
+        state.adminOrdersLoadingByAdminId[adminId] = false;
       })
       .addCase(getMyAdminOrders.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
+        const adminId = action.meta.arg;
+        state.adminOrdersLoadingByAdminId[adminId] = false;
+        state.adminOrdersErrorByAdminId[adminId] =
+          action.payload || action.error.message;
       })
   },
 });

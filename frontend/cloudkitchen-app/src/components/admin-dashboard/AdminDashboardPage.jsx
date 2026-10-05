@@ -10,16 +10,19 @@ import { getMyAdminOrders } from "../../redux/slices/orderSlice.js";
 
 export default function AdminDashboardPage({ theme, onToggleTheme }) {
   const dispatch = useDispatch();
+  const adminId = useSelector((state) => state.auth.user?.id || state.auth.user?._id);
   const { kitchens = [] } = useSelector((state) => state.kitchen);
-  const { menuItems = [], loading: menuLoading, error: menuError } = useSelector(
+  const { menuItems = [], loading: menuLoading } = useSelector(
     (state) => state.menu,
   );
-  const { orders = [] } = useSelector((state) => state.orders);
+  const orders = useSelector(
+    (state) => state.orders.adminOrdersByAdminId[adminId] || [],
+  );
   const kitchen = kitchens[0];
 
   useEffect(() => {
-    dispatch(getMyAdminOrders());
-  }, [dispatch]);
+    if (adminId) dispatch(getMyAdminOrders(adminId));
+  }, [dispatch, adminId]);
 
   useEffect(() => {
     kitchens.forEach((ownedKitchen) => {
@@ -109,7 +112,6 @@ export default function AdminDashboardPage({ theme, onToggleTheme }) {
               menuItems={menuItems}
               kitchens={kitchens}
               loading={menuLoading}
-              error={menuError}
               showAddForm={false}
             />
           </section>

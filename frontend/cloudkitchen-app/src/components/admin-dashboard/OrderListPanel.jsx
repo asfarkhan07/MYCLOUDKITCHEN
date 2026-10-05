@@ -1,4 +1,4 @@
-export default function OrderListPanel({ orders, loading, error }) {
+export default function OrderListPanel({ orders, loading }) {
   return (
     <article className="dashboard-panel dashboard-panel--wide">
       <div className="dashboard-panel__header">
@@ -10,8 +10,6 @@ export default function OrderListPanel({ orders, loading, error }) {
 
       {loading ? (
         <p>Loading orders...</p>
-      ) : error ? (
-        <p className="form-feedback--error" role="alert">{error}</p>
       ) : orders.length ? (
         <div className="order-stack">
           {orders.map((order) => (

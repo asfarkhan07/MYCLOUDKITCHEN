@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { CreateKitchen, getMyKitchens } from "../../redux/slices/kitchenSlice.js";
+import { showSuccessAlert } from "../../utils/sweetAlert.js";
 
 const defaultKitchenForm = {
   name: "",
@@ -19,8 +20,10 @@ export default function KitchenManagerPanel({ showStandaloneHeader = false, show
   const [form, setForm] = useState(defaultKitchenForm);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const imageInputRef = useRef(null);
   const dispatch = useDispatch();
-  const { kitchens = [], loading: kitchensLoading, error: kitchensError } = useSelector((state) => state.kitchen);
+  const { kitchens = [], loading: kitchensLoading } = useSelector((state) => state.kitchen);
 
   useEffect(() => {
     dispatch(getMyKitchens());
@@ -47,6 +50,7 @@ export default function KitchenManagerPanel({ showStandaloneHeader = false, show
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsCreating(true);
 
     try {
       await dispatch(
@@ -63,12 +67,16 @@ export default function KitchenManagerPanel({ showStandaloneHeader = false, show
           image: imageFile,
         }),
       ).unwrap();
-      await dispatch(getMyKitchens()).unwrap();
       setForm(defaultKitchenForm);
       setImageFile(null);
       setImagePreviewUrl("");
+      if (imageInputRef.current) imageInputRef.current.value = "";
+      dispatch(getMyKitchens());
+      void showSuccessAlert("Kitchen created successfully");
     } catch (error) {
       console.error("Kitchen create failed:", error);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -104,7 +112,7 @@ export default function KitchenManagerPanel({ showStandaloneHeader = false, show
               <label className="form-field form-field--full">
                 <span>Kitchen image</span>
                 <div className="image-upload-box">
-                  <input type="file" name="image" accept="image/jpeg,image/png,image/webp" onChange={handleImageChange} />
+                  <input ref={imageInputRef} type="file" name="image" accept="image/jpeg,image/png,image/webp" onChange={handleImageChange} />
                   {imagePreviewUrl ? (
                     <img src={imagePreviewUrl} alt="Kitchen preview" className="image-preview" />
                   ) : (
@@ -153,7 +161,9 @@ export default function KitchenManagerPanel({ showStandaloneHeader = false, show
               </label>
             </div>
 
-            <button type="submit" className="btn btn-primary">Save kitchen</button>
+            <button type="submit" className="btn btn-primary" disabled={isCreating}>
+              {isCreating ? "Creating..." : "Save kitchen"}
+            </button>
           </form>
         </article>
       )}
@@ -169,8 +179,6 @@ export default function KitchenManagerPanel({ showStandaloneHeader = false, show
 
         {kitchensLoading ? (
           <p className="admin-kitchens-message" role="status">Loading kitchens...</p>
-        ) : kitchensError ? (
-          <p className="admin-kitchens-message" role="alert">{kitchensError}</p>
         ) : kitchens.length ? (
           <div className="admin-kitchen-list">
             {kitchens.map((item) => {

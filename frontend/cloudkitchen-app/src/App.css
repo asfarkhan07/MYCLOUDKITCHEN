@@ -928,61 +928,25 @@
   gap: 4px;
 }
 
-.form-alert {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 0 0 14px;
-  padding: 0.9rem 2.8rem 0.9rem 0.9rem;
-  border-radius: 14px;
-  font-size: 0.92rem;
-  font-weight: 700;
-  border: 1px solid transparent;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+.cloud-sweet-alert {
+  border-radius: 12px;
+  font-family: inherit;
 }
 
-.form-alert-success {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.05));
-  border-color: rgba(34, 197, 94, 0.32);
-  color: #167a4a;
-}
-
-.form-alert-error {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.04));
-  border-color: rgba(239, 68, 68, 0.3);
-  color: #b72f2f;
-}
-
-.form-alert-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  font-size: 0.85rem;
-  font-weight: 900;
-  flex-shrink: 0;
-}
-
-.form-alert-close {
-  position: absolute;
-  top: 8px;
-  right: 10px;
+.cloud-sweet-alert__confirm {
+  min-width: 96px;
+  padding: 10px 18px;
   border: 0;
-  background: transparent;
-  color: inherit;
-  font-size: 1.45rem;
-  line-height: 1;
+  border-radius: 8px;
+  background: #1c8b5b;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
   cursor: pointer;
-  opacity: 0.8;
 }
 
-.form-alert-close:hover {
-  opacity: 1;
+.cloud-sweet-alert__confirm:hover {
+  background: #166f49;
 }
 
 .auth-form .field-group {
@@ -1241,43 +1205,6 @@
   align-items: center;
   gap: 8px;
   color: var(--text);
-}
-
-.checkout-success {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 18px 0;
-  padding: 16px;
-  color: #176b45;
-  background: #e9f7ef;
-  border: 1px solid #b7e3c9;
-  border-radius: 8px;
-}
-
-.checkout-success__icon {
-  position: relative;
-  flex: 0 0 30px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: #24845b;
-}
-
-.checkout-success__icon::after {
-  position: absolute;
-  top: 7px;
-  left: 10px;
-  width: 7px;
-  height: 12px;
-  border-right: 2px solid white;
-  border-bottom: 2px solid white;
-  content: "";
-  transform: rotate(45deg);
-}
-
-.checkout-success p {
-  margin: 4px 0 0;
 }
 
 .order-history {
@@ -1968,18 +1895,6 @@
   display: grid;
   justify-items: start;
   gap: 16px;
-}
-
-.form-feedback {
-  margin: 0;
-}
-
-.form-feedback--error {
-  color: #c33f37;
-}
-
-.form-feedback--success {
-  color: #24845b;
 }
 
 .kitchen-details {

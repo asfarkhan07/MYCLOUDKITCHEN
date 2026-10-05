@@ -7,7 +7,7 @@ import KitchenCard from "./KitchenCard";
 
 export default function ExploreKitchenPage({ theme, onToggleTheme }) {
   const dispatch = useDispatch();
-  const { kitchens, loading, error } = useSelector((state) => state.browse);
+  const { kitchens, loading } = useSelector((state) => state.browse);
 
   useEffect(() => {
     dispatch(getKitchens());
@@ -40,8 +40,6 @@ export default function ExploreKitchenPage({ theme, onToggleTheme }) {
           <div className="kitchen-grid">
             {loading ? (
               <p>Loading kitchens...</p>
-            ) : error ? (
-              <p role="alert">{error}</p>
             ) : kitchens.length ? (
               kitchens.map((kitchen) => (
                 <KitchenCard key={kitchen._id || kitchen.id} kitchen={kitchen} />

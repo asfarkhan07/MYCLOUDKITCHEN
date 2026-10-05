@@ -11,7 +11,7 @@ const defaultMenuForm = {
   availability: true,
 };
 
-export default function MenuManagerPanel({ menuItems = [], kitchens = [], onAddMenuItem, loading = false, error = null, showAddForm = true }) {
+export default function MenuManagerPanel({ menuItems = [], kitchens = [], onAddMenuItem, loading = false, showAddForm = true }) {
   const [form, setForm] = useState(defaultMenuForm);
 
   const handleSubmit = (event) => {
@@ -133,8 +133,6 @@ export default function MenuManagerPanel({ menuItems = [], kitchens = [], onAddM
       <div className="menu-table admin-menu-table">
         {loading ? (
           <div className="empty-state" role="status">Loading menu items...</div>
-        ) : error ? (
-          <div className="empty-state" role="alert">{error}</div>
         ) : menuItems.length ? (
           menuItems.map((item) => {
             const itemKitchenId = String(

@@ -13,6 +13,7 @@ import {
 } from "../../redux/slices/orderSlice";
 import UserDashboardNavbar from "./UserDashboardNavbar";
 import CartSummary from "./CartSummary";
+import { showErrorAlert, showSuccessAlert } from "../../utils/sweetAlert.js";
 
 const loadRazorpay = () => {
   if (window.Razorpay) return Promise.resolve(true);
@@ -40,8 +41,6 @@ export default function CartPage({ theme, onToggleTheme }) {
     phoneNumber: "",
   });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [checkoutError, setCheckoutError] = useState(null);
-  const [checkoutMessage, setCheckoutMessage] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
 
   const handleAddressChange = (event) => {
@@ -51,8 +50,6 @@ export default function CartPage({ theme, onToggleTheme }) {
 
   const handleCheckout = async (event) => {
     event.preventDefault();
-    setCheckoutError(null);
-    setCheckoutMessage(null);
     setIsProcessing(true);
 
     try {
@@ -68,13 +65,16 @@ export default function CartPage({ theme, onToggleTheme }) {
       if (paymentMethod === "cash_on_delivery") {
         await dispatch(placeOrder({ ...orderDetails, paymentMethod })).unwrap();
         dispatch(clearcart());
-        setCheckoutMessage("cod");
         setIsProcessing(false);
+        void showSuccessAlert("Order placed successfully. Payment will be collected on delivery.");
+        navigate("/dashboard");
         return;
       }
 
       if (!(await loadRazorpay())) {
-        throw new Error("Unable to load Razorpay checkout. Please try again.");
+        void showErrorAlert("Unable to load Razorpay checkout. Please try again.");
+        setIsProcessing(false);
+        return;
       }
 
       const paymentOrder = await dispatch(
@@ -99,11 +99,13 @@ export default function CartPage({ theme, onToggleTheme }) {
               }),
             ).unwrap();
             dispatch(clearcart());
-            setCheckoutMessage("online");
+            setIsProcessing(false);
+            void showSuccessAlert("Payment received and your order is confirmed.");
+            navigate("/dashboard");
           } catch (error) {
-            setCheckoutError(
-              typeof error === "string" ? error : error.message || "Payment verification failed.",
-            );
+            if (typeof error !== "string") {
+              void showErrorAlert(error?.message || "Payment verification failed.");
+            }
           } finally {
             setIsProcessing(false);
           }
@@ -114,18 +116,16 @@ export default function CartPage({ theme, onToggleTheme }) {
         theme: { color: "#1c8b5b" },
       });
       checkout.on("payment.failed", (response) => {
-        setCheckoutError(
+        void showErrorAlert(
           response.error.description || "Payment failed. Please try again.",
         );
         setIsProcessing(false);
       });
       checkout.open();
     } catch (error) {
-      setCheckoutError(
-        typeof error === "string"
-          ? error
-          : error.message || "Unable to place order.",
-      );
+      if (typeof error !== "string") {
+        void showErrorAlert(error?.message || "Unable to place order.");
+      }
       setIsProcessing(false);
     }
   };
@@ -278,32 +278,12 @@ export default function CartPage({ theme, onToggleTheme }) {
                 </label>
               </fieldset>
 
-              {checkoutError && <p role="alert">{checkoutError}</p>}
-              {checkoutMessage && (
-                <div className="checkout-success" role="status" aria-live="polite">
-                  <span className="checkout-success__icon" aria-hidden="true" />
-                  <div>
-                    <strong>Order placed successfully</strong>
-                    <p>
-                      {checkoutMessage === "cod"
-                        ? "Payment will be collected on delivery."
-                        : "Payment received and your order is confirmed."}
-                    </p>
-                  </div>
-                </div>
-              )}
-
               <button
-                type={checkoutMessage ? "button" : "submit"}
+                type="submit"
                 className="btn btn-primary large"
-                disabled={checkoutMessage ? false : !cartItems.length || isProcessing}
-                onClick={checkoutMessage ? () => navigate("/dashboard") : undefined}
+                disabled={!cartItems.length || isProcessing}
               >
-                {checkoutMessage
-                  ? "Go back to dashboard"
-                  : isProcessing
-                    ? "Processing..."
-                    : "Place order"}
+                {isProcessing ? "Processing..." : "Place order"}
               </button>
             </form>
             </article>

@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { register, clearError, loginUser } from "../../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
+import { register, loginUser } from "../../redux/slices/authSlice";
 import ThemeToggleButton from "../ThemeToggleButton";
+import { showErrorAlert, showSuccessAlert } from "../../utils/sweetAlert.js";
 
 function AuthLayout({
   title,
@@ -51,7 +52,6 @@ function AuthLayout({
 export function RegisterForm({ theme, onToggleTheme }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const authError = useSelector((state) => state.auth?.error);
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -59,67 +59,41 @@ export function RegisterForm({ theme, onToggleTheme }) {
     role: "user",
   });
 
-  const [errors, setErrors] = useState({});
-  const [alert, setAlert] = useState({ type: "", message: "" });
-
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
-    setErrors((e) => ({ ...e, [name]: "" }));
-    if (alert.message) {
-      setAlert({ type: "", message: "" });
-    }
-  };
-
-  const dismissError = () => {
-    setAlert({ type: "", message: "" });
-    setErrors((prev) => ({ ...prev, general: "" }));
-    dispatch(clearError());
   };
 
   const registerSubmit = async (e) => {
     e.preventDefault();
-    setAlert({ type: "", message: "" });
-
-    try {
-      const result = await dispatch(
-        register({
-          username: form.username.trim(),
-          email: form.email.trim(),
-          password: form.password,
-          role: form.role,
-        }),
-      );
-
-      if (register.rejected.match(result)) {
-        throw new Error(
-          result.payload || result.error?.message || "Registration failed.",
-        );
-      }
-
-      setErrors({});
-      dispatch(clearError());
-      setAlert({
-        type: "success",
-        message: "Registration successful. Redirecting to login...",
-      });
-      setTimeout(() => navigate("/Login"), 2000);
-    } catch (err) {
-      const message =
-        typeof err === "string"
-          ? err
-          : err?.message || "Registration failed. Please try again.";
-
-      setAlert({ type: "error", message });
-      setErrors({
-        general: message,
-      });
-      setTimeout(() => {
-        setAlert({ type: "", message: "" });
-        setErrors({});
-        dispatch(clearError());
-      }, 5000);
+    if (form.username.trim().length < 3) {
+      void showErrorAlert("Username must be at least 3 characters long.", "Check your details");
+      return;
     }
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(form.email.trim())) {
+      void showErrorAlert("Enter a valid email address.", "Check your details");
+      return;
+    }
+    if (form.password.length < 6) {
+      void showErrorAlert("Password must be at least 6 characters long.", "Check your details");
+      return;
+    }
+
+    const result = await dispatch(
+      register({
+        username: form.username.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        role: form.role,
+      }),
+    );
+
+    if (register.rejected.match(result)) return;
+
+    await showSuccessAlert("Registration successful. Redirecting to login.", {
+      timer: 2000,
+    });
+    navigate("/Login");
   };
 
   return (
@@ -133,56 +107,12 @@ export function RegisterForm({ theme, onToggleTheme }) {
       onToggleTheme={onToggleTheme}
     >
       <form className="auth-form" onSubmit={registerSubmit} noValidate>
-        {alert.message && (
-          <div
-            className={`form-alert ${
-              alert.type === "success"
-                ? "form-alert-success"
-                : "form-alert-error"
-            }`}
-            role="alert"
-          >
-            <span className="form-alert-icon" aria-hidden="true">
-              {alert.type === "success" ? "✓" : "!"}
-            </span>
-            <span>{alert.message}</span>
-            <button
-              type="button"
-              className="form-alert-close"
-              aria-label="Dismiss notification"
-              onClick={() => dismissError()}
-            >
-              ×
-            </button>
-          </div>
-        )}
-
-        {!alert.message && (authError || errors.general) && (
-          <div className="form-alert form-alert-error" role="alert">
-            <span className="form-alert-icon" aria-hidden="true">
-              !
-            </span>
-            <span>{authError || errors.general}</span>
-            <button
-              type="button"
-              className="form-alert-close"
-              aria-label="Dismiss notification"
-              onClick={() => {
-                setErrors((prev) => ({ ...prev, general: "" }));
-                dispatch(clearError());
-              }}
-            >
-              ×
-            </button>
-          </div>
-        )}
         <label className="field-group">
           <span>Username</span>
           <input
             type="text"
             name="username"
             value={form.username}
-            error={errors.username}
             onChange={handleChange}
             placeholder="Enter username"
           />
@@ -194,7 +124,6 @@ export function RegisterForm({ theme, onToggleTheme }) {
             type="email"
             name="email"
             value={form.email}
-            error={errors.email}
             onChange={handleChange}
             placeholder="Enter email"
           />
@@ -206,7 +135,6 @@ export function RegisterForm({ theme, onToggleTheme }) {
             type="password"
             name="password"
             value={form.password}
-            error={errors.password}
             onChange={handleChange}
             placeholder="Enter password"
           />
@@ -228,11 +156,6 @@ export function RegisterForm({ theme, onToggleTheme }) {
         <button type="submit" className="btn btn-primary auth-submit">
           Create Account
         </button>
-        {alert.type === "success" && (
-          <Link to="/Login" className="btn btn-ghost auth-submit">
-            Continue to login
-          </Link>
-        )}
       </form>
     </AuthLayout>
   );
@@ -241,51 +164,39 @@ export function RegisterForm({ theme, onToggleTheme }) {
 export function LoginForm({ theme, onToggleTheme }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const authError = useSelector((state) => state.auth?.error);
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const [errors, setErrors] = useState({});
-
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
-    setErrors((e) => ({ ...e, [name]: "" }));
-    if (authError) {
-      dispatch(clearError());
-    }
   };
 
   const loginSubmit = async (e) => {
     e.preventDefault();
-    setErrors({});
-    dispatch(clearError());
-
-    try {
-      const result = await dispatch(
-        loginUser({
-          email: form.email.trim().toLowerCase(),
-          password: form.password,
-        }),
-      );
-
-      if (loginUser.rejected.match(result)) {
-        throw new Error(
-          result.payload || result.error?.message || "Login failed.",
-        );
-      }
-
-      const role = result?.payload?.user?.role || "user";
-      navigate(role === "admin" ? "/admin" : "/dashboard");
-    } catch (err) {
-      const message =
-        typeof err === "string"
-          ? err
-          : err?.message || "Login failed. Please try again.";
-      setErrors({ general: message });
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(form.email.trim())) {
+      void showErrorAlert("Enter a valid email address.", "Check your details");
+      return;
     }
+    if (form.password.length < 6) {
+      void showErrorAlert("Password must be at least 6 characters long.", "Check your details");
+      return;
+    }
+
+    const result = await dispatch(
+      loginUser({
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+      }),
+    );
+
+    if (loginUser.rejected.match(result)) return;
+
+    const role = result?.payload?.user?.role || "user";
+    void showSuccessAlert("Login successful. Welcome back.");
+    navigate(role === "admin" ? "/admin" : "/dashboard");
   };
 
   return (
@@ -299,33 +210,12 @@ export function LoginForm({ theme, onToggleTheme }) {
       onToggleTheme={onToggleTheme}
     >
       <form className="auth-form" onSubmit={loginSubmit} noValidate>
-        {(authError || errors.general) && (
-          <div className="form-alert form-alert-error" role="alert">
-            <span className="form-alert-icon" aria-hidden="true">
-              !
-            </span>
-            <span>{authError || errors.general}</span>
-            <button
-              type="button"
-              className="form-alert-close"
-              aria-label="Dismiss notification"
-              onClick={() => {
-                setErrors((prev) => ({ ...prev, general: "" }));
-                dispatch(clearError());
-              }}
-            >
-              ×
-            </button>
-          </div>
-        )}
-
         <label className="field-group">
           <span>Email</span>
           <input
             type="email"
             name="email"
             value={form.email}
-            error={errors.email}
             onChange={handleChange}
             placeholder="Enter email"
           />
@@ -337,7 +227,6 @@ export function LoginForm({ theme, onToggleTheme }) {
             type="password"
             name="password"
             value={form.password}
-            error={errors.password}
             onChange={handleChange}
             placeholder="Enter password"
           />
