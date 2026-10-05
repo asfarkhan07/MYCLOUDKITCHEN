@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllMenuItems, getKitchens } from "../../redux/slices/browseSlice";
 import { addToCart, selectCartCount, selectCartItems } from "../../redux/slices/cartSlice";
@@ -8,16 +8,17 @@ import KitchenExplorer from "./KitchenExplorer";
 import MenuList from "./MenuList";
 import CartSummary from "./CartSummary";
 import StatCard from "./StatCard";
+import { showSuccessAlert } from "../../utils/sweetAlert.js";
 
 export default function UserDashboardPage({ theme, onToggleTheme }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     kitchens,
     menus,
     loading: kitchensLoading,
     menusLoading,
   } = useSelector((state) => state.browse);
-  const [selectedKitchenId, setSelectedKitchenId] = useState("");
   const cartItems = useSelector(selectCartItems);
   const cartCount = useSelector(selectCartCount);
 
@@ -29,14 +30,15 @@ export default function UserDashboardPage({ theme, onToggleTheme }) {
     if (kitchens.length > 0) dispatch(getAllMenuItems(kitchens));
   }, [dispatch, kitchens]);
 
-  const selectedKitchen =
-    kitchens.find(
-      (kitchen) => String(kitchen._id || kitchen.id) === selectedKitchenId,
-    ) || kitchens[0];
-  const activeKitchenId = String(selectedKitchen?._id || selectedKitchen?.id || "");
+  const selectedKitchen = kitchens[0];
+
+  const handleKitchenSelect = (kitchenId) => {
+    navigate(`/dashboard/kitchens/${encodeURIComponent(kitchenId)}/menu`);
+  };
 
   const handleAddToCart = (item) => {
     dispatch(addToCart(item));
+    void showSuccessAlert(`${item.name} added to cart.`);
   };
 
   return (
@@ -87,8 +89,8 @@ export default function UserDashboardPage({ theme, onToggleTheme }) {
             <KitchenExplorer
               kitchens={kitchens}
               loading={kitchensLoading}
-              selectedKitchenId={activeKitchenId}
-              onSelectKitchen={setSelectedKitchenId}
+              selectedKitchenId=""
+              onSelectKitchen={handleKitchenSelect}
             />
 
             <CartSummary items={cartItems} />

@@ -8,6 +8,7 @@ import {
 import { addToCart } from "../../redux/slices/cartSlice";
 import UserDashboardNavbar from "./UserDashboardNavbar";
 import MenuList from "./MenuList";
+import { showSuccessAlert } from "../../utils/sweetAlert.js";
 
 export default function KitchenMenuPage({ theme, onToggleTheme }) {
   const { kitchenId } = useParams();
@@ -34,6 +35,7 @@ export default function KitchenMenuPage({ theme, onToggleTheme }) {
 
   const handleAddToCart = (item) => {
     dispatch(addToCart(item));
+    void showSuccessAlert(`${item.name} added to cart.`);
   };
 
   return (
